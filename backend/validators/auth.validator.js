@@ -9,6 +9,7 @@ export const registerSchema = z.object({
     name: z.string().trim().min(2).max(80),
     email,
     password,
+    plan: z.enum(["free", "starter", "pro", "agency"]).optional(),
   }),
 });
 
@@ -28,6 +29,14 @@ export const refreshTokenSchema = z.object({
 export const logoutSchema = z.object({
   body: z.object({
     refreshToken: z.string().min(1).optional(),
+  }),
+});
+
+export const googleAuthSchema = z.object({
+  body: z.object({
+    credential: z.string().min(1, "Google credential is required"),
+    mode: z.enum(["login", "signup"]),
+    plan: z.enum(["free", "starter", "pro", "agency"]).optional(),
   }),
 });
 

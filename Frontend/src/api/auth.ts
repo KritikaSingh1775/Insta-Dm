@@ -45,10 +45,9 @@ export const authApi = {
 
   register: async (input: {
     name: string;
-
     email: string;
-
     password: string;
+    plan?: string;
   }) => {
     try {
       const response =
@@ -85,6 +84,26 @@ export const authApi = {
       const err = error as { response?: { data?: { message?: string } }; message?: string };
       const message = err?.response?.data?.message || err.message || "Login failed";
       console.error("Login error:", message);
+      throw new Error(message);
+    }
+  },
+
+  /* ==========================================
+     GOOGLE LOGIN
+  ========================================== */
+
+  googleAuth: async (credential: string, mode: "login" | "signup", plan?: string) => {
+    try {
+      const response =
+        await http.post<
+          ApiResponse<AuthPayload>
+        >("/auth/google", { credential, mode, plan });
+
+      return response.data;
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      const message = err?.response?.data?.message || err.message || "Google Login failed";
+      console.error("Google Login error:", message);
       throw new Error(message);
     }
   },

@@ -50,7 +50,7 @@ export function Pricing() {
                 <span className="text-muted-foreground text-sm">/mo</span>
               </div>
               <Button variant={t.variant} className="w-full mt-5" asChild>
-                <Link to="/signup">{t.cta}</Link>
+                <Link to={`/signup?plan=${t.name.toLowerCase()}`}>{t.cta}</Link>
               </Button>
               <ul className="mt-6 space-y-3">
                 {t.features.map((f) => (

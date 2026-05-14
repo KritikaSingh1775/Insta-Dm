@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ProtectedRoute, PublicOnlyRoute } from "@/components/auth/AuthRoute";
 import { AuthProvider } from "@/store/AuthContext";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -22,14 +23,17 @@ const Settings = lazy(() => import("./pages/dashboard/Settings"));
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID_HERE";
+  return (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <TooltipProvider>
         <AuthProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter>
+          <GoogleOAuthProvider clientId={googleClientId}>
+            <BrowserRouter>
             <Suspense fallback={<div className="min-h-screen bg-background" />}>
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -58,10 +62,12 @@ const App = () => (
               </Routes>
             </Suspense>
           </BrowserRouter>
+          </GoogleOAuthProvider>
         </AuthProvider>
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

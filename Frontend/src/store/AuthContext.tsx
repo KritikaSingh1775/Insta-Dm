@@ -20,7 +20,9 @@ type AuthState = {
     name: string;
     email: string;
     password: string;
+    plan?: string;
   }) => Promise<void>;
+  loginWithGoogle: (credential: string, mode: "login" | "signup", plan?: string) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -83,8 +85,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const register = useCallback(
-    async (input: { name: string; email: string; password: string }) => {
+    async (input: { name: string; email: string; password: string; plan?: string }) => {
       const response = await authApi.register(input);
+      persistAuth(response.data);
+    },
+    [persistAuth],
+  );
+
+  const loginWithGoogle = useCallback(
+    async (credential: string, mode: "login" | "signup", plan?: string) => {
+      const response = await authApi.googleAuth(credential, mode, plan);
       persistAuth(response.data);
     },
     [persistAuth],
@@ -106,9 +116,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       refreshToken: auth?.refreshToken ?? null,
       login,
       register,
+      loginWithGoogle,
       logout,
     }),
-    [auth, login, logout, register],
+    [auth, login, logout, register, loginWithGoogle],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
