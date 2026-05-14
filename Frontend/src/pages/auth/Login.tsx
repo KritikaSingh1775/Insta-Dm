@@ -57,11 +57,7 @@ export default function Login() {
         </>
       }
     >
-      <GoogleButton
-        onClick={() =>
-          toast.info("Google OAuth — connect Lovable Cloud to enable", { id: "google-oauth" })
-        }
-      />
+      <GoogleButton mode="login" />
 
       <div className="relative my-4 sm:my-5">
         <div className="absolute inset-0 flex items-center">

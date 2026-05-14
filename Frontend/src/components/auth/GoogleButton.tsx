@@ -1,8 +1,37 @@
-export function GoogleButton({ onClick }: { onClick?: () => void }) {
+import { useGoogleLogin } from "@react-oauth/google";
+import { useAuth } from "@/store/AuthContext";
+import { toast } from "sonner";
+import { useNavigate, useLocation } from "react-router-dom";
+
+export function GoogleButton({ mode, plan }: { mode: "login" | "signup"; plan?: string }) {
+  const { loginWithGoogle } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const from =
+    (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? "/dashboard";
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      const toastId = "google-login-toast";
+      toast.loading("Signing in with Google...", { id: toastId });
+      try {
+        await loginWithGoogle(tokenResponse.access_token, mode, plan);
+        toast.success("Welcome back!", { id: toastId });
+        navigate(from, { replace: true });
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Unable to sign in", { id: toastId });
+      }
+    },
+    onError: () => {
+      toast.error("Google login failed");
+    },
+  });
+
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={() => googleLogin()}
       className="w-full h-11 rounded-lg border border-border bg-background hover:bg-secondary transition-colors flex items-center justify-center gap-3 text-sm font-medium"
     >
       <svg className="h-4 w-4" viewBox="0 0 48 48" aria-hidden="true">

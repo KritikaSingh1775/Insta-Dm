@@ -1,6 +1,8 @@
 import { AppError } from "../utils/errorHandler.js";
 import { generateTokens, verifyRefreshToken } from "../utils/jwt.js";
 import User from "../models/User.js";
+import crypto from "crypto";
+import axios from "axios";
 
 const buildAuthPayload = (user, tokens) => ({
   user: user.toJSON(),
@@ -8,13 +10,13 @@ const buildAuthPayload = (user, tokens) => ({
   refreshToken: tokens.refreshToken,
 });
 
-export const registerUser = async ({ email, password, name }) => {
+export const registerUser = async ({ email, password, name, plan }) => {
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     throw new AppError("User with this email already exists", 409);
   }
 
-  const user = new User({ email, password, name, plan: "free" });
+  const user = new User({ email, password, name, plan: plan || "free" });
   await user.save();
 
   const tokens = generateTokens(user._id.toString());
@@ -22,6 +24,47 @@ export const registerUser = async ({ email, password, name }) => {
   await user.save();
 
   return buildAuthPayload(user, tokens);
+};
+
+export const googleAuthUser = async (credential, mode, plan) => {
+  try {
+    // Fetch user info from Google using the access token
+    const { data } = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
+      headers: {
+        Authorization: `Bearer ${credential}`,
+      },
+    });
+
+    const { email, name } = data;
+
+    let user = await User.findOne({ email }).select("+refreshTokens");
+
+    if (!user) {
+      if (mode === "login") {
+        throw new AppError("Account not found. Please sign up first.", 404);
+      }
+      // Create a new user with a random secure password
+      const randomPassword = crypto.randomBytes(32).toString("hex");
+      user = new User({ email, name, password: randomPassword, plan: plan || "free" });
+      await user.save();
+    } else {
+      if (plan && user.plan !== plan) {
+        // Update their plan if they used a specific pricing link
+        user.plan = plan;
+        await user.save();
+      }
+    }
+
+    const tokens = generateTokens(user._id.toString());
+    user.addRefreshToken(tokens.refreshToken);
+    await user.save();
+
+    return buildAuthPayload(user, tokens);
+  } catch (error) {
+    console.error("Google Auth Error:", error.response?.data || error.message);
+    if (error instanceof AppError) throw error;
+    throw new AppError("Invalid Google credential", 401);
+  }
 };
 
 export const loginUser = async ({ email, password }) => {

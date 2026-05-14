@@ -4,6 +4,7 @@ import {
   logoutUser,
   refreshUserTokens,
   registerUser,
+  googleAuthUser,
 } from "../services/auth.service.js";
 import { sendSuccess } from "../utils/apiResponse.js";
 
@@ -25,6 +26,18 @@ export const login = async (req, res, next) => {
     const data = await loginUser(req.body);
     sendSuccess(res, {
       message: "Login successful",
+      data,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const googleAuth = async (req, res, next) => {
+  try {
+    const data = await googleAuthUser(req.body.credential, req.body.mode, req.body.plan);
+    sendSuccess(res, {
+      message: "Google login successful",
       data,
     });
   } catch (err) {
@@ -72,4 +85,5 @@ export default {
   getMe,
   refresh,
   logout,
+  googleAuth,
 };

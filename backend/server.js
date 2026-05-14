@@ -182,9 +182,6 @@ const startServer = async () => {
 
 startServer();
 
-/* ==========================================
-   UNHANDLED REJECTIONS
-========================================== */
 
 process.on(
   "unhandledRejection",
@@ -196,9 +193,6 @@ process.on(
   }
 );
 
-/* ==========================================
-   UNCAUGHT EXCEPTIONS
-========================================== */
 
 process.on(
   "uncaughtException",

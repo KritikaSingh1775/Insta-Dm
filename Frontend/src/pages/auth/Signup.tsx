@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -13,6 +13,8 @@ import { signupSchema, type SignupFormData } from "@/validators/auth.validator";
 
 export default function Signup() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const plan = searchParams.get("plan") || "free";
   const { register: registerUser } = useAuth();
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
@@ -26,6 +28,7 @@ export default function Signup() {
         name: data.name as string,
         email: data.email as string,
         password: data.password as string,
+        plan,
       });
       toast.success("Account created! Redirecting...", { id: toastId });
       navigate("/dashboard");
@@ -40,7 +43,7 @@ export default function Signup() {
       subtitle="Start your 14-day Pro trial — no card needed"
       footer={<>Already have an account? <Link to="/login" className="text-primary font-medium hover:underline">Sign in</Link></>}
     >
-      <GoogleButton onClick={() => toast.info("Google OAuth", { id: "google-oauth" })} />
+      <GoogleButton mode="signup" plan={plan} />
 
       <div className="relative my-4 sm:my-5">
         <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
