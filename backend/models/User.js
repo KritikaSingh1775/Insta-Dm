@@ -28,7 +28,7 @@ const InstagramAccountSchema = new mongoose.Schema(
     accessToken: {
       type: String,
       required: true,
-      select: false, // 🔐 hide token
+      select: false,
     },
 
     pageAccessToken: {
@@ -149,7 +149,6 @@ UserSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-/* 🔄 REFRESH TOKEN HELPERS */
 UserSchema.methods.addRefreshToken = function (token) {
   if (this.refreshTokens.length >= 5) {
     this.refreshTokens = this.refreshTokens.slice(-4);
@@ -166,7 +165,6 @@ UserSchema.methods.clearRefreshTokens = function () {
   this.refreshTokens = [];
 };
 
-/* 🧼 CLEAN RESPONSE */
 UserSchema.methods.toJSON = function () {
   const obj = this.toObject();
 

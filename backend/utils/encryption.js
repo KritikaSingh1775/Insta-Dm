@@ -1,13 +1,6 @@
 import crypto from "crypto";
 
-/**
- * Encryption Utility
- * Handles AES-256-GCM encryption for sensitive data
- */
-
-//
-
-// Get encryption key from environment (must be 32 characters for AES-256)
+// get 32-byte encryption key from env
 const getEncryptionKey = () => {
   const key = process.env.ENCRYPTION_KEY;
   if (!key) {
@@ -17,7 +10,6 @@ const getEncryptionKey = () => {
   return crypto.createHash("sha256").update(key).digest();
 };
 
-// Encrypt text using AES-256-GCM
 export const encrypt = (text) => {
   if (!text) return null;
 
@@ -29,11 +21,9 @@ export const encrypt = (text) => {
   encrypted += cipher.final("hex");
   const authTag = cipher.getAuthTag();
 
-  // Return IV + authTag + encrypted data
   return `${iv.toString("hex")}:${authTag.toString("hex")}:${encrypted}`;
 };
 
-// Decrypt text using AES-256-GCM
 export const decrypt = (encryptedText) => {
   if (!encryptedText) return null;
 

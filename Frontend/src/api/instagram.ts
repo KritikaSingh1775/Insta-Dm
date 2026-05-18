@@ -1,150 +1,68 @@
-import http from "./http";
-
-/* ==========================================
-   TYPES
-========================================== */
+import http, { API_BASE_URL } from "./http";
 
 export interface InstagramAccount {
+  _id?: string;
   igUserId: string;
   igUsername: string;
-
   pageId: string;
   pageName?: string;
-
-  connectedAt: string;
-
-  tokenExpiry: string;
-
-  isActive: boolean;
-
-  webhookSubscribed?: boolean;
+  connectedAt?: string;
+  tokenExpiresAt?: string;
+  isActive?: boolean;
 }
 
 export interface InstagramAccountsResponse {
   success: boolean;
-
-  data: {
-    accounts: InstagramAccount[];
-  };
+  accounts: InstagramAccount[];
 }
 
-/* ==========================================
-   CONNECT INSTAGRAM
-========================================== */
-
 export const connectInstagram =
-  async (): Promise<{
-    success: boolean;
-    url: string;
-  }> => {
-    try {
-      const response =
-        await http.get("/instagram/connect");
+  async (): Promise<void> => {
+    const auth = JSON.parse(
+      localStorage.getItem(
+        "athenura.auth"
+      ) || "{}"
+    );
 
-      return response.data;
-    } catch (error) {
-      const err = error as { response?: { data?: { message?: string } }; message?: string };
-      const message = err?.response?.data?.message || err.message || "Instagram connect failed";
-      console.error("Instagram connect error:", message);
-      throw new Error(message);
+    const token =
+      auth?.accessToken;
+
+    if (!token) {
+      throw new Error(
+        "Authentication required"
+      );
     }
-  };
 
-/* ==========================================
-   GET CONNECTED ACCOUNTS
-========================================== */
+    window.location.href =
+      `${API_BASE_URL}/instagram/connect?token=${token}`;
+  };
 
 export const getInstagramAccounts =
-  async (): Promise<InstagramAccountsResponse> => {
-    try {
-      const response =
-        await http.get(
-          "/instagram/accounts"
-        );
+  async (): Promise<
+    InstagramAccountsResponse
+  > => {
+    const response =
+      await http.get(
+        "/instagram/accounts"
+      );
 
-      return response.data;
-    } catch (error) {
-      const err = error as { response?: { data?: { message?: string } }; message?: string };
-      const message = err?.response?.data?.message || err.message || "Failed to fetch Instagram accounts";
-      console.error("Fetch Instagram accounts error:", message);
-      throw new Error(message);
-    }
+    return response.data;
   };
-
-/* ==========================================
-   DISCONNECT ACCOUNT
-========================================== */
 
 export const disconnectInstagram =
   async (
     igUserId: string
-  ): Promise<{
-    success: boolean;
-    message: string;
-  }> => {
-    try {
-      const response =
-        await http.post(
-          "/instagram/disconnect",
-          {
-            igUserId,
-          }
-        );
+  ) => {
+    const response =
+      await http.delete(
+        `/instagram/disconnect/${igUserId}`
+      );
 
-      return response.data;
-    } catch (error) {
-      const err = error as { response?: { data?: { message?: string } }; message?: string };
-      const message = err?.response?.data?.message || err.message || "Disconnect Instagram failed";
-      console.error("Disconnect Instagram error:", message);
-      throw new Error(message);
-    }
-  };
-
-/* ==========================================
-   WEBHOOK STATUS
-   (FOR FUTURE USE)
-========================================== */
-
-export const getWebhookStatus =
-  async () => {
-    try {
-      const response =
-        await http.get(
-          "/instagram/webhook"
-        );
-
-      return response.data;
-    } catch (error) {
-      console.error(error);
-
-      throw error;
-    }
-  };
-
-/* ==========================================
-   VERIFY CONNECTION
-========================================== */
-
-export const verifyInstagramConnection =
-  async () => {
-    try {
-      const response =
-        await http.get(
-          "/instagram/health"
-        );
-
-      return response.data;
-    } catch (error) {
-      console.error(error);
-
-      throw error;
-    }
+    return response.data;
   };
 
 export default {
   connectInstagram,
   getInstagramAccounts,
   disconnectInstagram,
-  getWebhookStatus,
-  verifyInstagramConnection,
-};
+}; 

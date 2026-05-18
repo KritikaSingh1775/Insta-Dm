@@ -18,7 +18,6 @@ export function AuthShell({
     <div className="min-h-[100dvh] flex flex-col relative overflow-x-hidden bg-background">
       <div className="absolute inset-0 mesh-bg pointer-events-none" />
 
-      {/* Header */}
       <header className="absolute top-0 inset-x-0 z-10 flex items-center justify-between gap-4 p-4 sm:p-6 w-full max-w-7xl mx-auto">
         <Link to="/" aria-label="Athenura home">
           <BrandLogo animated className="h-8 w-auto sm:h-10" />
@@ -26,7 +25,6 @@ export function AuthShell({
         <ThemeToggle />
       </header>
 
-      {/* Main Content properly centered vertically and horizontally */}
       <main className="relative flex flex-1 w-full items-center justify-center p-4 pt-20 sm:p-6 mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 24 }}

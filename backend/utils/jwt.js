@@ -1,33 +1,29 @@
 import jwt from "jsonwebtoken";
 import env from "../config/env.js";
 
- 
 
- 
+
+
 export const generateAccessToken = (userId) => {
-  return jwt.sign({ userId }, env.jwtSecret, {
-    expiresIn: env.jwtExpiresIn,
+  return jwt.sign({ userId }, env.JWT_SECRET, {
+    expiresIn: env.JWT_EXPIRES_IN,
   });
 };
 
-// Generate refresh token
 export const generateRefreshToken = (userId) => {
-  return jwt.sign({ userId }, env.jwtRefreshSecret, {
-    expiresIn: env.jwtRefreshExpiresIn,
+  return jwt.sign({ userId }, env.JWT_REFRESH_SECRET, {
+    expiresIn: env.JWT_REFRESH_EXPIRES_IN,
   });
 };
 
-// Verify access token
 export const verifyAccessToken = (token) => {
-  return jwt.verify(token, env.jwtSecret);
+  return jwt.verify(token, env.JWT_SECRET);
 };
 
-// Verify refresh token
 export const verifyRefreshToken = (token) => {
-  return jwt.verify(token, env.jwtRefreshSecret);
+  return jwt.verify(token, env.JWT_REFRESH_SECRET);
 };
 
-// Generate both tokens
 export const generateTokens = (userId) => {
   const accessToken = generateAccessToken(userId);
   const refreshToken = generateRefreshToken(userId);

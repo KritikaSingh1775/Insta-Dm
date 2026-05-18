@@ -1,60 +1,45 @@
 import { Loader2, Instagram } from "lucide-react";
-
 import { useState } from "react";
-
-import { connectInstagram } from "@/api/instagram";
-
 import { Button } from "@/components/ui/button";
-
-import { toast } from "sonner";
+import { API_BASE_URL } from "@/api/http";
 
 const ConnectInstagramButton = () => {
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleConnect = async () => {
     try {
       setLoading(true);
 
-      const response =
-        await connectInstagram();
+      const auth = JSON.parse(localStorage.getItem("athenura.auth") || "{}");
 
-      if (!response?.url) {
-        throw new Error(
-          "OAuth URL not received"
-        );
+      const token = auth?.accessToken;
+
+      if (!token) {
+        alert("Login required");
+        return;
       }
 
-      window.location.href =
-        response.url;
-    } catch (error) {
-      const err = error as { response?: { data?: { message?: string } }; message?: string };
-      console.error(err);
+      const encoded = encodeURIComponent(token);
 
-      toast.error(
-        err?.response?.data?.message ||
-          "Failed to connect Instagram"
-      );
+      window.location.href = `${API_BASE_URL}/instagram/connect?token=${encoded}`;
+    } catch (error) {
+      console.error(error);
+
+      alert("Instagram connect failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Button
-      onClick={handleConnect}
-      disabled={loading}
-      className="gap-2"
-    >
+    <Button onClick={handleConnect} disabled={loading} className="gap-2">
       {loading ? (
         <Loader2 className="h-4 w-4 animate-spin" />
       ) : (
         <Instagram className="h-4 w-4" />
       )}
 
-      {loading
-        ? "Connecting..."
-        : "Connect Instagram"}
+      {loading ? "Connecting..." : "Connect Instagram"}
     </Button>
   );
 };

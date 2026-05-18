@@ -10,6 +10,7 @@ import { sendSuccess } from "../utils/apiResponse.js";
 
 export const register = async (req, res, next) => {
   try {
+    console.log('[auth.register] incoming body:', req.body);
     const data = await registerUser(req.body);
     sendSuccess(res, {
       statusCode: 201,
@@ -35,6 +36,7 @@ export const login = async (req, res, next) => {
 
 export const googleAuth = async (req, res, next) => {
   try {
+    console.log('[auth.google] incoming body:', req.body);
     const data = await googleAuthUser(req.body.credential, req.body.mode, req.body.plan);
     sendSuccess(res, {
       message: "Google login successful",

@@ -28,14 +28,23 @@ export const registerUser = async ({ email, password, name, plan }) => {
 
 export const googleAuthUser = async (credential, mode, plan) => {
   try {
-    // Fetch user info from Google using the access token
-    const { data } = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
-      headers: {
-        Authorization: `Bearer ${credential}`,
-      },
-    });
+    // decode jwt payload without verification
+    const parts = credential.split('.');
+    if (parts.length !== 3) {
+      throw new AppError("Invalid credential format", 401);
+    }
 
-    const { email, name } = data;
+    // parse base64 payload
+    let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const decoded = JSON.parse(
+      Buffer.from(base64, 'base64').toString('utf-8')
+    );
+
+    const { email, name, picture } = decoded;
+
+    if (!email) {
+      throw new AppError("Could not retrieve email from Google", 401);
+    }
 
     let user = await User.findOne({ email }).select("+refreshTokens");
 
@@ -43,13 +52,13 @@ export const googleAuthUser = async (credential, mode, plan) => {
       if (mode === "login") {
         throw new AppError("Account not found. Please sign up first.", 404);
       }
-      // Create a new user with a random secure password
+      // create user with random secure password
       const randomPassword = crypto.randomBytes(32).toString("hex");
       user = new User({ email, name, password: randomPassword, plan: plan || "free" });
       await user.save();
     } else {
       if (plan && user.plan !== plan) {
-        // Update their plan if they used a specific pricing link
+        // update plan if specific link was used
         user.plan = plan;
         await user.save();
       }
@@ -61,7 +70,7 @@ export const googleAuthUser = async (credential, mode, plan) => {
 
     return buildAuthPayload(user, tokens);
   } catch (error) {
-    console.error("Google Auth Error:", error.response?.data || error.message);
+    console.error("Google Auth Error:", error.message);
     if (error instanceof AppError) throw error;
     throw new AppError("Invalid Google credential", 401);
   }

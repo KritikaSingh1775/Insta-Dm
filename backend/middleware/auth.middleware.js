@@ -4,7 +4,7 @@ import { AppError } from "../utils/errorHandler.js";
 export const protect = (req, res, next) => {
   let authHeader = req.headers.authorization;
 
-  // Allow token to be passed via query string (for OAuth redirects, e.g. Instagram connect)
+  // check query string for token on OAuth redirects
   if (!authHeader && req.query.token) {
     authHeader = `Bearer ${req.query.token}`;
   }

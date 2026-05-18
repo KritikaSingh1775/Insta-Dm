@@ -134,6 +134,22 @@ const CampaignSchema = new mongoose.Schema(
       default: "keyword",
     },
 
+    triggerKeywords: {
+      type: [
+        {
+          type: String,
+          trim: true,
+          lowercase: true,
+        },
+      ],
+      default: [],
+      validate: {
+        validator: function (v) {
+          return Array.isArray(v) ? v.length > 0 : false;
+        },
+        message: "At least one trigger keyword is required",
+      },
+    },
     keywords: {
       type: [String],
       default: [],
@@ -223,13 +239,23 @@ const CampaignSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+
+    autoReplyMessage: {
+      type: String,
+      trim: true,
+      default: "",
+      validate: {
+        validator: function (v) {
+          return typeof v === "string" && v.trim().length > 0;
+        },
+        message: "autoReplyMessage is required",
+      },
+    },
   },
   {
     timestamps: true,
   }
 );
-
-// useful indexes
 
 CampaignSchema.index({
   user: 1,
@@ -238,6 +264,10 @@ CampaignSchema.index({
 
 CampaignSchema.index({
   instagramAccount: 1,
+});
+
+CampaignSchema.index({
+  triggerKeywords: 1,
 });
 
 CampaignSchema.index({

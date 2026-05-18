@@ -1,9 +1,5 @@
 import http from "./http";
 
-/* ==========================================
-   TYPES
-========================================== */
-
 export interface CampaignStep {
   type: "message" | "delay";
 
@@ -23,16 +19,19 @@ export interface Campaign {
 
   status: "draft" | "active" | "paused";
 
-  keywords: string[];
+  triggerKeywords: string[];
+  keywords?: string[];
 
   steps: CampaignStep[];
 
+  stats: {
+    totalSent: number;
+    totalDelivered: number;
+    totalReplied: number;
+  };
+
   createdAt: string;
 }
-
-/* ==========================================
-   CREATE CAMPAIGN
-========================================== */
 
 export const createCampaign = async (data: any) => {
   const response = await http.post("/campaigns", data);
@@ -40,19 +39,11 @@ export const createCampaign = async (data: any) => {
   return response.data;
 };
 
-/* ==========================================
-   GET CAMPAIGNS
-========================================== */
-
 export const getCampaigns = async () => {
   const response = await http.get("/campaigns");
 
   return response.data;
 };
-
-/* ==========================================
-   GET SINGLE CAMPAIGN
-========================================== */
 
 export const getCampaign = async (id: string) => {
   const response = await http.get(`/campaigns/${id}`);
@@ -60,19 +51,11 @@ export const getCampaign = async (id: string) => {
   return response.data;
 };
 
-/* ==========================================
-   UPDATE CAMPAIGN
-========================================== */
-
 export const updateCampaign = async (id: string, data: any) => {
   const response = await http.put(`/campaigns/${id}`, data);
 
   return response.data;
 };
-
-/* ==========================================
-   DELETE CAMPAIGN
-========================================== */
 
 export const deleteCampaign = async (id: string) => {
   const response = await http.delete(`/campaigns/${id}`);
@@ -80,19 +63,11 @@ export const deleteCampaign = async (id: string) => {
   return response.data;
 };
 
-/* ==========================================
-   TOGGLE CAMPAIGN STATUS
-========================================== */
-
 export const toggleCampaignStatus = async (id: string) => {
   const response = await http.patch(`/campaigns/${id}/toggle`);
 
   return response.data;
 };
-
-/* ==========================================
-   CAMPAIGN API OBJECT
-========================================== */
 
 export const campaignApi = {
   getAll: getCampaigns,

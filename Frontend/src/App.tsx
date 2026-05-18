@@ -8,9 +8,12 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ProtectedRoute, PublicOnlyRoute } from "@/components/auth/AuthRoute";
 import { AuthProvider } from "@/store/AuthContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { CookieConsent } from "@/components/CookieConsent";
 
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
 const Login = lazy(() => import("./pages/auth/Login"));
 const Signup = lazy(() => import("./pages/auth/Signup"));
 const DashboardLayout = lazy(() => import("./pages/dashboard/DashboardLayout"));
@@ -37,6 +40,8 @@ const App = () => {
             <Suspense fallback={<div className="min-h-screen bg-background" />}>
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
                 <Route element={<PublicOnlyRoute />}>
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
@@ -63,6 +68,7 @@ const App = () => {
             </Suspense>
           </BrowserRouter>
           </GoogleOAuthProvider>
+          <CookieConsent />
         </AuthProvider>
       </TooltipProvider>
     </ThemeProvider>

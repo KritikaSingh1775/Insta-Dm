@@ -36,17 +36,13 @@ export default function Settings() {
   const [disconnectingId, setDisconnectingId] =
     useState<string | null>(null);
 
-  /* ==========================================
-     FETCH CONNECTED ACCOUNTS
-  ========================================== */
-
   const fetchAccounts = async () => {
     try {
       const response =
         await getInstagramAccounts();
 
       setAccounts(
-        response?.data?.accounts || []
+        response?.accounts || []
       );
     } catch (error) {
       console.error(error);
@@ -60,12 +56,28 @@ export default function Settings() {
   };
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const success = params.get("success");
+    const error = params.get("error");
+
+    if (success === "instagram_connected") {
+      toast.success("Instagram account connected successfully!");
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (error) {
+      let errorMsg = "Connection failed";
+      if (error === "no_instagram_business_account") {
+        errorMsg = "Your FB page must be linked to an Instagram Business account.";
+      } else if (error === "no_pages_found") {
+        errorMsg = "No Facebook Pages linked with business tasks were found.";
+      } else {
+        errorMsg = `Connection failed: ${error.replace(/_/g, " ")}`;
+      }
+      toast.error(errorMsg);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     fetchAccounts();
   }, []);
-
-  /* ==========================================
-     DISCONNECT ACCOUNT
-  ========================================== */
 
   const handleDisconnect = async (
     igUserId: string
@@ -100,10 +112,6 @@ export default function Settings() {
 
   return (
     <div className="space-y-6 animate-fade-in max-w-3xl">
-      {/* ==========================================
-          HEADER
-      ========================================== */}
-
       <div>
         <h2 className="font-display text-2xl font-bold tracking-tight">
           Settings
@@ -114,10 +122,6 @@ export default function Settings() {
           integrations and notifications.
         </p>
       </div>
-
-      {/* ==========================================
-          PROFILE
-      ========================================== */}
 
       <section className="glass-card p-6">
         <h3 className="font-semibold">
@@ -157,10 +161,6 @@ export default function Settings() {
           Save changes
         </Button>
       </section>
-
-      {/* ==========================================
-          INSTAGRAM ACCOUNTS
-      ========================================== */}
 
       <section className="glass-card p-6">
         <div className="flex items-center justify-between">
@@ -258,10 +258,6 @@ export default function Settings() {
           )}
         </div>
       </section>
-
-      {/* ==========================================
-          NOTIFICATIONS
-      ========================================== */}
 
       <section className="glass-card p-6">
         <h3 className="font-semibold">
