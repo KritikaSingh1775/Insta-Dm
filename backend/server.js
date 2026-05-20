@@ -3,13 +3,15 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import leadRoutes from "./routes/lead.routes.js";
 import connectDB from "./config/db.js";
 import env from "./config/env.js";
 
 import authRoutes from "./routes/auth.routes.js";
 import campaignRoutes from "./routes/campaign.routes.js";
+import leadRoutes from "./routes/lead.routes.js";
 import instagramRoutes from "./routes/instagram.routes.js";
+import overviewRoutes from "./routes/overview.routes.js";
+import analyticsRoutes from "./routes/analytics.routes.js";
 
 import { errorHandler } from "./utils/errorHandler.js";
 
@@ -29,7 +31,7 @@ app.use(helmet());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, 
-  max: 100, 
+  max: 200, // relaxed in dev / webhook environments
   standardHeaders: true, 
   legacyHeaders: false, 
   message: {
@@ -39,7 +41,6 @@ const limiter = rateLimit({
 });
 
 app.use("/api", limiter);
-
 
 app.use(
   cors({
@@ -109,69 +110,29 @@ app.get("/health", (req, res) => {
   });
 });
 
-app.get("/webhook", (req, res) => {
-  try {
-    const mode = req.query["hub.mode"];
-    const token = req.query["hub.verify_token"];
-    const challenge = req.query["hub.challenge"];
-
-    if (
-      mode === "subscribe" &&
-      token === env.META_WEBHOOK_VERIFY_TOKEN
-    ) {
-      console.log("✅ WEBHOOK VERIFIED");
-
-      return res.status(200).send(challenge);
-    }
-
-    return res.sendStatus(403);
-  } catch (error) {
-    console.error("❌ WEBHOOK VERIFY ERROR:", error);
-
-    return res.sendStatus(500);
-  }
+// ----------------------------------------------------
+// UNIFIED WEBHOOK FORWARDING
+// Forward root /webhook to instagramRoutes sub-router
+// ----------------------------------------------------
+app.get("/webhook", (req, res, next) => {
+  req.url = "/webhook";
+  instagramRoutes(req, res, next);
 });
 
-app.post("/webhook", async (req, res) => {
-  try {
-    console.log(
-      "📩 WEBHOOK EVENT:",
-      JSON.stringify(req.body, null, 2)
-    );
-
-    const entry = req.body.entry?.[0];
-
-    const change = entry?.changes?.[0];
-
-    if (change?.field === "comments") {
-      const commentText =
-        change?.value?.text?.toLowerCase();
-
-      console.log("💬 COMMENT:", commentText);
-
-      if (commentText?.includes("price")) {
-        console.log(
-          "🔥 KEYWORD MATCHED → SEND DM HERE"
-        );
-
-        // TODO:
-        // Send Instagram DM here
-      }
-    }
-
-    return res.sendStatus(200);
-  } catch (error) {
-    console.error("❌ WEBHOOK ERROR:", error);
-
-    return res.sendStatus(500);
-  }
+app.post("/webhook", (req, res, next) => {
+  req.url = "/webhook";
+  instagramRoutes(req, res, next);
 });
 
+// ----------------------------------------------------
+// REGISTER API ROUTES
+// ----------------------------------------------------
 app.use("/api/v1/auth", authRoutes);
-
 app.use("/api/v1/campaigns", campaignRoutes);
 app.use("/api/v1/leads", leadRoutes);
 app.use("/api/v1/instagram", instagramRoutes);
+app.use("/api/v1/overview", overviewRoutes);
+app.use("/api/v1/analytics", analyticsRoutes);
 
 app.use((req, res) => {
   return res.status(404).json({

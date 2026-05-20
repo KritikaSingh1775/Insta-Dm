@@ -1,41 +1,171 @@
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Funnel, FunnelChart, LabelList, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useEffect, useState } from "react";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Funnel, FunnelChart, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { analyticsApi, AnalyticsData } from "@/api/analytics";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TrendingUp, MessageSquare, Tag, Award, Users, Share2 } from "lucide-react";
+import { motion } from "framer-motion";
 
-const trend = Array.from({ length: 30 }).map((_, i) => ({
-  d: i + 1,
-  sent: 800 + Math.round(Math.sin(i / 3) * 200 + Math.random() * 300 + i * 12),
-  conv: 80 + Math.round(Math.cos(i / 3) * 18 + Math.random() * 30 + i * 1.4),
-}));
+const tooltipStyle = {
+  background: "hsl(var(--popover))",
+  border: "1px solid hsl(var(--border))",
+  borderRadius: 12,
+  fontSize: 12,
+};
 
-const ctr = Array.from({ length: 7 }).map((_, i) => ({
-  day: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][i],
-  ctr: 14 + Math.round(Math.random() * 14),
-}));
-
-const funnel = [
-  { name: "DMs sent", value: 12480, fill: "hsl(263 90% 66%)" },
-  { name: "Opened", value: 9842, fill: "hsl(280 92% 70%)" },
-  { name: "Clicked", value: 4123, fill: "hsl(220 90% 65%)" },
-  { name: "Replied", value: 2104, fill: "hsl(190 95% 60%)" },
-  { name: "Converted", value: 824, fill: "hsl(152 75% 50%)" },
-];
-
-const tooltipStyle = { background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 12, fontSize: 12 };
+export function AnalyticsCard({
+  label,
+  value,
+  description,
+  icon: Icon,
+  idx,
+}: {
+  label: string;
+  value: string | number;
+  description: string;
+  icon: any;
+  idx: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: idx * 0.05 }}
+      className="glass-card p-5 hover:border-primary/40 transition-colors"
+    >
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-muted-foreground font-medium">{label}</span>
+        <div className="h-8 w-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+          <Icon className="h-4 w-4 text-primary" />
+        </div>
+      </div>
+      <p className="font-display text-2xl font-bold mt-2 text-white">{value}</p>
+      <p className="text-[10px] text-zinc-500 mt-1">{description}</p>
+    </motion.div>
+  );
+}
 
 export default function Analytics() {
+  const [data, setData] = useState<AnalyticsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchAnalytics = async () => {
+    try {
+      const res = await analyticsApi.get();
+      if (res.success) {
+        setData(res.data);
+        setError(null);
+      }
+    } catch (err) {
+      console.error("FAILED TO FETCH ANALYTICS:", err);
+      setError("Unable to sync database analytics.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAnalytics();
+
+    // Auto-refresh analytics stats every 10 seconds
+    const interval = setInterval(fetchAnalytics, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div>
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-80 mt-2" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-28 rounded-xl" />
+          ))}
+        </div>
+        <div className="grid lg:grid-cols-2 gap-4">
+          <Skeleton className="h-80 rounded-xl" />
+          <Skeleton className="h-80 rounded-xl" />
+        </div>
+        <Skeleton className="h-80 rounded-xl" />
+      </div>
+    );
+  }
+
+  const summary = data?.summary;
+
+  const cards = [
+    {
+      label: "Conversion Rate",
+      value: `${summary?.conversionRate ?? 0}%`,
+      description: "Leads who replied back to your DMs",
+      icon: TrendingUp,
+    },
+    {
+      label: "Total Replies",
+      value: summary?.totalReplies ?? 0,
+      description: "Direct message replies received",
+      icon: MessageSquare,
+    },
+    {
+      label: "Most Successful Keyword",
+      value: summary?.mostSuccessfulKeyword || "N/A",
+      description: "Keyword matching the most comments",
+      icon: Tag,
+    },
+    {
+      label: "Best Performing Campaign",
+      value: summary?.bestPerformingCampaign || "N/A",
+      description: "Campaign driving the highest engagement",
+      icon: Award,
+    },
+    {
+      label: "Total Leads",
+      value: summary?.totalLeads ?? 0,
+      description: "All time unique leads generated",
+      icon: Users,
+    },
+    {
+      label: "Total DMs Dispatched",
+      value: summary?.totalSent ?? 0,
+      description: "All automated DMs dispatched",
+      icon: Share2,
+    },
+  ];
+
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h2 className="font-display text-2xl font-bold tracking-tight">Analytics</h2>
-        <p className="text-muted-foreground text-sm mt-1">Track DMs, clicks and conversions across all campaigns.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 className="font-display text-2xl font-bold tracking-tight">Analytics</h2>
+          <p className="text-muted-foreground text-sm mt-1">
+            Track DMs, keywords, conversion rates, and funnel metrics in real-time.
+          </p>
+        </div>
+        {error && (
+          <span className="text-xs px-3 py-1.5 rounded-full bg-destructive/10 border border-destructive/20 text-destructive-foreground">
+            ⚠️ {error}
+          </span>
+        )}
       </div>
 
+      {/* Analytics Info Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+        {cards.map((c, i) => (
+          <AnalyticsCard key={c.label} {...c} idx={i} />
+        ))}
+      </div>
+
+      {/* Trend Charts */}
       <div className="grid lg:grid-cols-2 gap-4">
+        {/* DMs vs Conversions */}
         <div className="glass-card p-6">
-          <h3 className="font-semibold">DMs sent vs Conversions</h3>
-          <p className="text-xs text-muted-foreground">Last 30 days</p>
+          <h3 className="font-semibold text-lg text-white">DMs Sent vs Conversions</h3>
+          <p className="text-xs text-muted-foreground">Volume & replies over the last 30 days</p>
           <div className="h-72 mt-3">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={trend}>
+              <AreaChart data={data?.trend || []}>
                 <defs>
                   <linearGradient id="sent" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
@@ -47,46 +177,101 @@ export default function Analytics() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                <XAxis dataKey="d" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                <XAxis dataKey="d" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Area type="monotone" dataKey="sent" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#sent)" />
-                <Area type="monotone" dataKey="conv" stroke="hsl(var(--success))" strokeWidth={2} fill="url(#conv)" />
+                <Area
+                  type="monotone"
+                  name="DMs Dispatched"
+                  dataKey="sent"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2}
+                  fill="url(#sent)"
+                />
+                <Area
+                  type="monotone"
+                  name="Replies Received"
+                  dataKey="conv"
+                  stroke="hsl(var(--success))"
+                  strokeWidth={2}
+                  fill="url(#conv)"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
+        {/* Daily Leads Growth */}
         <div className="glass-card p-6">
-          <h3 className="font-semibold">Click-through rate</h3>
-          <p className="text-xs text-muted-foreground">By weekday (%)</p>
+          <h3 className="font-semibold text-lg text-white">Daily Leads Generated</h3>
+          <p className="text-xs text-muted-foreground">New unique leads captured per day (30 days)</p>
           <div className="h-72 mt-3">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={ctr}>
+              <AreaChart data={data?.dailyLeadsGraph || []}>
+                <defs>
+                  <linearGradient id="leadsGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--accent))" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                <XAxis dataKey="d" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Bar dataKey="ctr" fill="hsl(var(--accent))" radius={[8, 8, 0, 0]} />
-              </BarChart>
+                <Area
+                  type="monotone"
+                  name="New Leads"
+                  dataKey="leads"
+                  stroke="hsl(var(--accent))"
+                  strokeWidth={2}
+                  fill="url(#leadsGrad)"
+                />
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
       </div>
 
-      <div className="glass-card p-6">
-        <h3 className="font-semibold">Funnel drop-off</h3>
-        <p className="text-xs text-muted-foreground">Stage-by-stage conversion</p>
-        <div className="h-80 mt-3">
-          <ResponsiveContainer width="100%" height="100%">
-            <FunnelChart>
-              <Tooltip contentStyle={tooltipStyle} />
-              <Funnel dataKey="value" data={funnel} isAnimationActive>
-                <LabelList position="right" fill="hsl(var(--foreground))" stroke="none" dataKey="name" fontSize={12} />
-                <LabelList position="center" fill="white" stroke="none" dataKey="value" fontSize={12} />
-              </Funnel>
-            </FunnelChart>
-          </ResponsiveContainer>
+      {/* Weekday Conversion Rates and Funnel Analysis */}
+      <div className="grid lg:grid-cols-2 gap-4">
+        {/* Engagement Trend by Weekday */}
+        <div className="glass-card p-6">
+          <h3 className="font-semibold text-lg text-white">Conversion rate</h3>
+          <p className="text-xs text-muted-foreground">Historical conversion rate by weekday (%)</p>
+          <div className="h-72 mt-3">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data?.ctr || []}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={10} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} unit="%" />
+                <Tooltip contentStyle={tooltipStyle} formatter={(v) => `${v}%`} />
+                <Bar dataKey="ctr" name="Conversion Rate" fill="hsl(var(--accent))" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Funnel Drop-off */}
+        <div className="glass-card p-6">
+          <h3 className="font-semibold text-lg text-white">Funnel drop-off</h3>
+          <p className="text-xs text-muted-foreground">Stage-by-stage marketing performance</p>
+          <div className="h-72 mt-3">
+            <ResponsiveContainer width="100%" height="100%">
+              <FunnelChart>
+                <Tooltip contentStyle={tooltipStyle} />
+                <Funnel dataKey="value" data={data?.funnel || []} isAnimationActive>
+                  <LabelList
+                    position="right"
+                    fill="hsl(var(--foreground))"
+                    stroke="none"
+                    dataKey="name"
+                    fontSize={11}
+                  />
+                  <LabelList position="center" fill="white" stroke="none" dataKey="value" fontSize={11} />
+                </Funnel>
+              </FunnelChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>
