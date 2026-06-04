@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/store/AuthContext";
+import { SidebarNav } from "@/components/dashboard/SidebarNav";
 
 const items = [
   { title: "Overview", url: "/dashboard", icon: LayoutDashboard, end: true },
@@ -47,32 +48,12 @@ function AppSidebar() {
       <SidebarContent>
         <div className="flex items-center px-4 py-5">
           <BrandLogo
+            to="/"
             compact={collapsed}
             className={collapsed ? undefined : "h-10 w-[142px]"}
           />
         </div>
-        <SidebarGroup>
-          <SidebarGroupLabel>Workspace</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end={item.end}
-                      className="hover:bg-sidebar-accent rounded-lg"
-                      activeClassName="bg-gradient-primary text-primary-foreground hover:bg-gradient-primary [&>svg]:text-primary-foreground font-medium"
-                    >
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <SidebarNav />
 
         {!collapsed && (
           <div className="mt-auto p-4">

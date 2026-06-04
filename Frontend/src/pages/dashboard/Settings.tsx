@@ -15,6 +15,8 @@ import {
 import ConnectInstagramButton from "@/components/dashboard/ConnectInstagramButton";
 
 import { Button } from "@/components/ui/button";
+import { PageEmpty, PageLoading, PageError } from "@/components/dashboard/page-states";
+
 
 import { Input } from "@/components/ui/input";
 
@@ -180,27 +182,14 @@ export default function Settings() {
 
         <div className="mt-5 space-y-4">
           {loading ? (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
-
-              Loading accounts...
-            </div>
+            <PageLoading />
           ) : accounts.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border p-8 text-center">
-              <Instagram className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-
-              <p className="text-sm font-medium">
-                No Instagram accounts
-                connected
-              </p>
-
-              <p className="text-xs text-muted-foreground mt-1">
-                Connect your Instagram
-                Business account to start
-                automating campaigns.
-              </p>
-            </div>
+            <PageEmpty
+              title="No Instagram accounts connected"
+              description="Connect your Instagram Business account to start automating campaigns."
+            />
           ) : (
+
             accounts.map((account) => (
               <div
                 key={account.igUserId}

@@ -8,11 +8,15 @@ export function Hero() {
     <section className="relative overflow-hidden pb-16 pt-28 sm:pb-24 sm:pt-36">
       <div className="absolute inset-0 mesh-bg pointer-events-none" />
       <div className="absolute inset-0 grid-pattern opacity-60 pointer-events-none" />
-      <div className="absolute inset-x-0 top-24 h-64 bg-gradient-to-b from-primary/10 via-accent/5 to-transparent pointer-events-none" />
+
+      {/* premium floating glows */}
+      <div className="absolute inset-x-0 top-24 h-64 pointer-events-none">
+        <div className="absolute left-1/2 -translate-x-1/2 top-0 h-[260px] w-[260px] -translate-y-10 rounded-full bg-purple-500/15 blur-3xl animate-floatGlow" />
+        <div className="absolute right-[-40px] top-16 h-[220px] w-[220px] rounded-full bg-blue-500/10 blur-3xl animate-floatGlow [animation-delay:1.2s]" />
+      </div>
 
       <div className="container relative">
         <div className="max-w-4xl mx-auto text-center">
-
           <motion.h1
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -35,30 +39,75 @@ export function Hero() {
             dashboard.
           </motion.p>
 
+          {/* Social proof + live stats */}
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 px-4 sm:px-0"
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="mt-8 sm:mt-10 px-4 sm:px-0"
           >
-            <Button
-              variant="hero"
-              size="xl"
-              asChild
-              className="w-full sm:w-auto"
+            <div className="mx-auto max-w-2xl">
+              <div className="rounded-2xl border border-border/60 bg-surface/40 backdrop-blur supports-[backdrop-filter]:bg-surface/30 px-4 py-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">⭐⭐⭐⭐⭐</span>
+                    <p className="text-sm font-medium text-foreground">
+                      Trusted by 12,000+ creators
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="text-xs">
+                      <p className="text-sm font-semibold text-foreground leading-none">
+                        47,281
+                      </p>
+                      <p className="text-muted-foreground leading-none">
+                        DMs Sent Today
+                      </p>
+                    </div>
+
+                    <div className="hidden sm:block h-10 w-px bg-border/60" />
+
+                    <div className="text-xs">
+                      <p className="text-sm font-semibold text-foreground leading-none">
+                        12,142
+                      </p>
+                      <p className="text-muted-foreground leading-none">
+                        Leads Captured
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* CTA buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.35 }}
+              className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3"
             >
-              <Link to="/signup">
-                Start free trial <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button
-              variant="glass"
-              size="xl"
-              asChild
-              className="w-full sm:w-auto"
-            >
-              <a href="#how">See how it works</a>
-            </Button>
+              <Button
+                variant="hero"
+                size="xl"
+                asChild
+                className="w-full sm:w-auto"
+              >
+                <Link to="/signup">
+                  Start free trial <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+
+              <Button
+                variant="glass"
+                size="xl"
+                asChild
+                className="w-full sm:w-auto"
+              >
+                <a href="#how">See how it works</a>
+              </Button>
+            </motion.div>
           </motion.div>
 
           <motion.p
@@ -106,7 +155,7 @@ function DmFlowPreview() {
             <p className="text-sm font-medium">@sarah.codes</p>
             <p className="text-sm text-muted-foreground mt-1">
               "Send me the{" "}
-              <span className="text-primary font-semibold">guide</span> please!
+              <span className="text-primary font-semibold">guide</span> please!{" "}
               🙏"
             </p>
             <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
@@ -183,3 +232,4 @@ function DmFlowPreview() {
     </div>
   );
 }
+

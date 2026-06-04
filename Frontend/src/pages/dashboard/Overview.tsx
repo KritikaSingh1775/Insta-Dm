@@ -143,10 +143,10 @@ export default function Overview() {
 
       {/* Charts Section */}
       <div className="grid lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 glass-card p-6">
+        <div className="lg:col-span-2 glass-card glass-card-hover p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-semibold text-lg text-white">DMs vs Leads</h3>
+              <h3 className="font-semibold text-lg text-foreground">DMs vs Leads</h3>
               <p className="text-xs text-muted-foreground">Activity distribution over last 14 days</p>
             </div>
           </div>
@@ -194,8 +194,8 @@ export default function Overview() {
           </div>
         </div>
 
-        <div className="glass-card p-6">
-          <h3 className="font-semibold text-lg text-white">Top campaigns</h3>
+        <div className="glass-card glass-card-hover p-6">
+          <h3 className="font-semibold text-lg text-foreground">Top campaigns</h3>
           <p className="text-xs text-muted-foreground">Ranked by messages sent</p>
           <div className="h-72 mt-2">
             {!data?.charts?.campaignBars || data.charts.campaignBars.length === 0 ? (
@@ -230,8 +230,8 @@ export default function Overview() {
       </div>
 
       {/* Activity Feed Section */}
-      <div className="glass-card p-6">
-        <h3 className="font-semibold text-lg text-white mb-4">Recent activity</h3>
+      <div className="glass-card glass-card-hover p-6">
+        <h3 className="font-semibold text-lg text-foreground mb-4">Recent activity</h3>
         {!data?.recentActivities || data.recentActivities.length === 0 ? (
           <div className="py-8 text-center text-sm text-muted-foreground">
             Waiting for Instagram comments/DMs triggers to log events...
@@ -251,8 +251,8 @@ export default function Overview() {
                     {act.who.replace(/[@"']/g, "").slice(0, 2).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-zinc-200">
-                      <span className="font-medium text-white">{act.who}</span>{" "}
+                    <p className="text-muted-foreground">
+                      <span className="font-medium text-foreground">{act.who}</span>{" "}
                       <span className="text-muted-foreground">{act.what}</span>
                     </p>
                   </div>

@@ -1,8 +1,17 @@
 import { useEffect, useState, useCallback, ComponentType } from "react";
+
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Funnel, FunnelChart, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { analyticsApi, AnalyticsData } from "@/api/analytics";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingUp, MessageSquare, Tag, Award, Users, Share2 } from "lucide-react";
+import { PageError } from "@/components/dashboard/page-states";
+import { Button } from "@/components/ui/button";
+
+
+
+
+
+
 import { motion } from "framer-motion";
 import { useRealtimeStore } from "@/store/realtime.store";
 
@@ -31,7 +40,7 @@ export function AnalyticsCard({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: idx * 0.05 }}
-      className="glass-card p-5 hover:border-primary/40 transition-colors"
+      className="glass-card glass-card-hover p-5 hover:border-primary/40 transition-colors"
     >
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground font-medium">{label}</span>
@@ -39,7 +48,7 @@ export function AnalyticsCard({
           <Icon className="h-4 w-4 text-primary" />
         </div>
       </div>
-      <p className="font-display text-2xl font-bold mt-2 text-white">{value}</p>
+      <p className="font-display text-2xl font-bold mt-2 text-foreground">{value}</p>
       <p className="text-[10px] text-zinc-500 mt-1">{description}</p>
     </motion.div>
   );
@@ -140,12 +149,27 @@ export default function Analytics() {
             Track DMs, keywords, conversion rates, and funnel metrics in real-time.
           </p>
         </div>
-        {error && (
-          <span className="text-xs px-3 py-1.5 rounded-full bg-destructive/10 border border-destructive/20 text-destructive-foreground">
-            ⚠️ {error}
-          </span>
-        )}
+        {error ? (
+          <div className="max-w-full">
+            <PageError
+              title="Unable to sync analytics"
+              description={error}
+              action={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-2"
+                  onClick={fetchAnalytics}
+                >
+                  Retry
+                </Button>
+              }
+            />
+          </div>
+        ) : null}
+
       </div>
+
 
       {/* Analytics Info Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
@@ -157,8 +181,8 @@ export default function Analytics() {
       {/* Trend Charts */}
       <div className="grid lg:grid-cols-2 gap-4">
         {/* DMs vs Conversions */}
-        <div className="glass-card p-6">
-          <h3 className="font-semibold text-lg text-white">DMs Sent vs Conversions</h3>
+        <div className="glass-card glass-card-hover p-6">
+          <h3 className="font-semibold text-lg text-foreground">DMs Sent vs Conversions</h3>
           <p className="text-xs text-muted-foreground">Volume & replies over the last 30 days</p>
           <div className="h-72 mt-3">
             <ResponsiveContainer width="100%" height="100%">
@@ -199,8 +223,8 @@ export default function Analytics() {
         </div>
 
         {/* Daily Leads Growth */}
-        <div className="glass-card p-6">
-          <h3 className="font-semibold text-lg text-white">Daily Leads Generated</h3>
+        <div className="glass-card glass-card-hover p-6">
+          <h3 className="font-semibold text-lg text-foreground">Daily Leads Generated</h3>
           <p className="text-xs text-muted-foreground">New unique leads captured per day (30 days)</p>
           <div className="h-72 mt-3">
             <ResponsiveContainer width="100%" height="100%">
@@ -232,8 +256,8 @@ export default function Analytics() {
       {/* Weekday Conversion Rates and Funnel Analysis */}
       <div className="grid lg:grid-cols-2 gap-4">
         {/* Engagement Trend by Weekday */}
-        <div className="glass-card p-6">
-          <h3 className="font-semibold text-lg text-white">Conversion rate</h3>
+        <div className="glass-card glass-card-hover p-6">
+          <h3 className="font-semibold text-lg text-foreground">Conversion rate</h3>
           <p className="text-xs text-muted-foreground">Historical conversion rate by weekday (%)</p>
           <div className="h-72 mt-3">
             <ResponsiveContainer width="100%" height="100%">
@@ -249,8 +273,8 @@ export default function Analytics() {
         </div>
 
         {/* Funnel Drop-off */}
-        <div className="glass-card p-6">
-          <h3 className="font-semibold text-lg text-white">Funnel drop-off</h3>
+        <div className="glass-card glass-card-hover p-6">
+          <h3 className="font-semibold text-lg text-foreground">Funnel drop-off</h3>
           <p className="text-xs text-muted-foreground">Stage-by-stage marketing performance</p>
           <div className="h-72 mt-3">
             <ResponsiveContainer width="100%" height="100%">
