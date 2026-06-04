@@ -34,7 +34,7 @@ export function Pricing() {
               className={cn(
                 "relative rounded-2xl p-6 border transition-all duration-300 hover:-translate-y-1",
                 t.popular
-                  ? "border-primary/50 bg-gradient-to-b from-primary/10 to-transparent shadow-glow"
+                  ? "border-primary/50 bg-background shadow-glow"
                   : "border-border bg-card hover:border-primary/30"
               )}
             >

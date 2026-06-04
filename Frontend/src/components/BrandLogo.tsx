@@ -1,15 +1,18 @@
 import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
 
 type BrandLogoProps = {
   compact?: boolean;
   animated?: boolean;
   className?: string;
+  to?: string;
 };
 
 export function BrandLogo({
   compact = false,
   animated = false,
   className,
+  to,
 }: BrandLogoProps) {
   const Icon = () => (
     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -17,8 +20,10 @@ export function BrandLogo({
     </svg>
   );
 
+  const icon = <Icon />;
+
   if (compact) {
-    return (
+    const content = (
       <span
         className={cn(
           "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-white shadow-sm font-semibold",
@@ -27,8 +32,44 @@ export function BrandLogo({
         )}
         aria-label="Athenura"
       >
-        <Icon />
+        {icon}
       </span>
+    );
+
+    if (to) {
+      return (
+        <Link to={to} aria-label="Athenura" className="inline-flex">
+          {content}
+        </Link>
+      );
+    }
+
+    return content;
+  }
+
+  const content = (
+    <span
+      className={cn(
+        "inline-flex items-center shrink-0 h-8 w-auto mr-2",
+        animated && "transition-transform duration-300 hover:scale-105",
+        className,
+      )}
+      aria-label="Athenura"
+    >
+      <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-white shadow-sm mr-2.5">
+        {icon}
+      </div>
+      <span className="font-display text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+        Athenura
+      </span>
+    </span>
+  );
+
+  if (to) {
+    return (
+      <Link to={to} aria-label="Athenura" className="inline-flex">
+        {content}
+      </Link>
     );
   }
 

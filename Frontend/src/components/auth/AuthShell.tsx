@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { BrandLogo } from "@/components/BrandLogo";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { GradientMesh } from "@/components/GradientMesh";
+
 
 export function AuthShell({
   title,
@@ -16,7 +18,7 @@ export function AuthShell({
 }) {
   return (
     <div className="min-h-[100dvh] flex flex-col relative overflow-x-hidden bg-background">
-      <div className="absolute inset-0 mesh-bg pointer-events-none" />
+      <GradientMesh className="opacity-90" animate={true} />
 
       <header className="absolute top-0 inset-x-0 z-10 flex items-center justify-between gap-4 p-4 sm:p-6 w-full max-w-7xl mx-auto">
         <Link to="/" aria-label="Athenura home">

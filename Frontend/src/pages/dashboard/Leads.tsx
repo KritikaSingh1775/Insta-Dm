@@ -1,10 +1,12 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Search, Edit3, X, Save, Tag as TagIcon, StickyNote, Activity } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { leadApi, Lead } from "@/api/leads";
+import { PageError, PageEmpty } from "@/components/dashboard/page-states";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { useRealtimeStore } from "@/store/realtime.store";
 
@@ -37,6 +39,18 @@ export default function Leads() {
   useEffect(() => {
     fetchLeads();
   }, [fetchLeads]);
+
+  useEffect(() => {
+    if (!selectedLead) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedLead(null);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [selectedLead]);
+
 
   const handleOpenEditModal = (lead: Lead) => {
     setSelectedLead(lead);
@@ -73,28 +87,43 @@ export default function Leads() {
     }
   };
 
-  const filtered = leads.filter(
-    (lead) =>
-      lead.igUsername?.toLowerCase()?.includes(q.toLowerCase()) ||
-      lead.comment?.toLowerCase()?.includes(q.toLowerCase()) ||
-      lead.keyword?.toLowerCase()?.includes(q.toLowerCase())
-  );
+  const filtered = useMemo(() => {
+    const query = q.trim().toLowerCase();
+    if (!query) return leads;
+
+    return leads.filter(
+      (lead) =>
+        lead.igUsername?.toLowerCase()?.includes(query) ||
+        lead.comment?.toLowerCase()?.includes(query) ||
+        lead.keyword?.toLowerCase()?.includes(query)
+    );
+  }, [leads, q]);
+
 
   return (
     <div className="space-y-6 animate-fade-in relative min-h-[80vh]">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white tracking-tight">Leads CRM</h2>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h2 className="font-display text-2xl font-bold tracking-tight">Leads CRM</h2>
+          <p className="text-muted-foreground text-sm mt-1">
             Real Instagram leads matched by campaigns automation.
           </p>
         </div>
-        {error && (
-          <span className="text-xs px-3 py-1.5 rounded-full bg-destructive/10 border border-destructive/20 text-destructive-foreground">
-            ⚠️ {error}
-          </span>
-        )}
+        {error ? (
+          <div className="max-w-full">
+            <PageError
+              title="Unable to sync leads"
+              description={error}
+              action={
+                <Button variant="outline" size="sm" className="mt-2" onClick={fetchLeads}>
+                  Retry
+                </Button>
+              }
+            />
+          </div>
+        ) : null}
       </div>
+
 
       <div className="glass-card overflow-hidden border border-border rounded-xl">
         <div className="p-4 border-b border-border flex items-center gap-3">
@@ -104,7 +133,7 @@ export default function Leads() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search by username, comment, or keyword..."
-              className="pl-9 bg-zinc-950 border-zinc-800 text-white rounded-xl focus-visible:ring-primary"
+              className="pl-9 bg-background border-border text-foreground rounded-xl focus-visible:ring-primary"
             />
           </div>
 
@@ -116,7 +145,7 @@ export default function Leads() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-800/80 text-zinc-400 text-left bg-zinc-950/20">
+            <tr className="border-b border-border/80 text-muted-foreground text-left bg-secondary/50">
                 <th className="px-5 py-3 font-semibold">Username</th>
                 <th className="px-5 py-3 font-semibold">Matched Keyword</th>
                 <th className="px-5 py-3 font-semibold">Trigger Comment</th>
@@ -131,7 +160,8 @@ export default function Leads() {
             <tbody>
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i} className="border-b border-zinc-900">
+                  <tr key={i} className="border-b border-border" >
+
                     <td className="px-5 py-4"><Skeleton className="h-4 w-24" /></td>
                     <td className="px-5 py-4"><Skeleton className="h-4 w-16" /></td>
                     <td className="px-5 py-4"><Skeleton className="h-4 w-32" /></td>
@@ -144,11 +174,17 @@ export default function Leads() {
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-16 text-muted-foreground text-zinc-500 bg-zinc-950/10">
-                    No leads found matching your search.
+                  <td colSpan={8} className="px-4 py-14">
+                    <PageEmpty
+                      title="No leads found"
+
+                      description="No leads match your current CRM search."
+                      className="!border-0 bg-transparent p-0"
+                    />
                   </td>
                 </tr>
               ) : (
+
                 filtered.map((lead) => {
                   let statusColor = "bg-zinc-800 text-zinc-400 border-zinc-700";
                   if (lead.status === "new") statusColor = "bg-blue-500/10 text-blue-400 border-blue-500/30";
@@ -164,9 +200,10 @@ export default function Leads() {
                       key={lead._id}
                       className="border-b border-zinc-900/60 hover:bg-zinc-900/20 transition-all group"
                     >
-                      <td className="px-5 py-3.5 font-medium text-white">
+                      <td className="px-5 py-3.5 font-medium text-foreground">
                         @{lead.igUsername}
                       </td>
+
 
                       <td className="px-5 py-3.5">
                         {lead.keyword ? (
@@ -238,7 +275,14 @@ export default function Leads() {
       {/* Glassmorphic CRM Edit Modal */}
       <AnimatePresence>
         {selectedLead && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            role="dialog"
+            aria-modal="true"
+            onMouseDown={(e) => {
+              if (e.target === e.currentTarget) setSelectedLead(null);
+            }}
+          >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}

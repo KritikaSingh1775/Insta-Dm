@@ -12,9 +12,11 @@ export function CTA() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="relative overflow-hidden rounded-3xl border border-primary/30 p-6 sm:p-10 md:p-16 text-center bg-gradient-to-br from-primary/15 via-background to-accent/10"
+          className="relative overflow-hidden rounded-3xl border border-primary/30 p-6 sm:p-10 md:p-16 text-center bg-background"
         >
-          <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-primary opacity-20 blur-3xl rounded-full" />
+          {/* premium floating glows */}
+          <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[520px] h-[520px] rounded-full bg-purple-500/15 blur-3xl opacity-70 animate-floatGlow" />
+          <div className="absolute top-10 right-[-120px] w-[320px] h-[320px] rounded-full bg-blue-500/10 blur-3xl opacity-70 animate-floatGlow [animation-delay:1.4s]" />
           <div className="relative">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-balance max-w-2xl mx-auto">
               Stop losing leads in your <span className="gradient-text">comment section</span>.
