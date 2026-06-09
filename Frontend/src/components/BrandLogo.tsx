@@ -57,11 +57,8 @@ export function BrandLogo({
       )}
       aria-label="Athenura"
     >
-      <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-white shadow-sm mr-2.5">
-        {icon}
-      </div>
-      <span className="font-display text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
-         <img src="/assets/athenura-logo.png" alt="brandlogo" className="h-8 w-auto max-w-full object-contain" />
+      <span className="font-display text-xl font-bold tracking-tight min-w-0 flex items-center">
+         <img src="/assets/athenura-logo.png" alt="brandlogo" className="h-8 w-auto max-w-full object-contain dark:brightness-0 dark:invert transition-all" />
       </span>
     </span>
   );
@@ -83,11 +80,8 @@ export function BrandLogo({
       )}
       aria-label="Athenura"
     >
-      <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent text-white shadow-sm mr-2.5">
-        <Icon />
-      </div>
-      <span className="font-display text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70 min-w-0">
-        <img src="/assets/athenura-logo.png" alt="brandlogo" className="h-8 w-auto max-w-full object-contain" />
+      <span className="font-display text-xl font-bold tracking-tight min-w-0 flex items-center">
+        <img src="/assets/athenura-logo.png" alt="brandlogo" className="h-8 w-auto max-w-full object-contain dark:brightness-0 dark:invert transition-all" />
       </span>
     </span>
   );

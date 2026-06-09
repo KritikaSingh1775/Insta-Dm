@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Plus, Pause, Play, MoreVertical, Trash2 } from "lucide-react";
+import { Plus, Pause, Play, MoreVertical, Trash2, Send, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,14 +27,26 @@ const Stat = ({
   label: string;
   value: number;
 }) => {
+  const isSent = label.toLowerCase() === "sent";
+  const Icon = isSent ? Send : CheckCircle2;
+  const colorClass = isSent ? "text-blue-400" : "text-emerald-400";
+
   return (
-    <div>
+    <div className="glass-card bg-secondary/20 p-4 sm:p-5 border border-border/50 rounded-2xl min-w-[140px] flex-1 relative overflow-hidden group hover:border-border/80 transition-all duration-300">
+      <div className="absolute -right-4 -top-4 opacity-[0.04] group-hover:opacity-[0.08] transition-opacity duration-300 pointer-events-none">
+        <Icon className={`w-24 h-24 ${colorClass}`} />
+      </div>
+      <div className="relative z-10 flex flex-col gap-3">
+        <div className="flex items-center gap-2.5">
+          <Icon className={`w-4 h-4 ${colorClass}`} />
           <p className="text-muted-foreground text-xs uppercase font-semibold tracking-wider">
-        {label}
-      </p>
-      <h3 className="text-4xl font-bold mt-1.5 text-foreground">
-        {value}
-      </h3>
+            {label}
+          </p>
+        </div>
+        <h3 className="font-display text-4xl font-bold text-foreground tracking-tight">
+          {value}
+        </h3>
+      </div>
     </div>
   );
 };
@@ -340,8 +352,8 @@ export default function Campaigns() {
 
                 <div className="border-t border-border/60 my-6" />
 
-                <div className="grid grid-cols-3 gap-4 sm:gap-8">
-                      <Stat
+                <div className="flex flex-wrap items-center gap-4">
+                  <Stat
                     label="Sent"
                     value={c.stats?.totalSent ?? 0}
                   />
@@ -349,11 +361,6 @@ export default function Campaigns() {
                   <Stat
                     label="Delivered"
                     value={c.stats?.totalDelivered ?? 0}
-                  />
-
-                  <Stat
-                    label="Replied"
-                    value={c.stats?.totalReplied ?? 0}
                   />
                 </div>
 

@@ -128,16 +128,10 @@ export function Footer() {
             <div className="grid gap-20 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
               {/* Brand */}
               <div className="lg:col-span-1">
-                <Link to="/" aria-label="Athenura home" className="inline-flex items-center">
-                  <span className="relative inline-flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary/25 to-accent/20 ring-1 ring-white/15 shadow-[0_0_0_1px_rgba(255,255,255,.06)]">
-                    <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,.22),transparent_55%)]" />
-                    <span className="relative">
-                      <BrandLogo compact animated />
-                    </span>
-                  </span>
-                </Link>
 
-                <h3 className="mt-4 text-lg font-semibold text-foreground tracking-tight">Athenura</h3>
+                <div className="mt-4">
+                  <img src="/assets/athenura-logo.png" alt="Athenura" className="h-7 w-auto object-contain dark:brightness-0 dark:invert transition-all" />
+                </div>
                 <p className="mt-2 max-w-xs text-sm text-muted-foreground">
                   Turn Instagram comments into paying customers automatically.
                 </p>

@@ -88,11 +88,6 @@ export default function Overview() {
       value: data?.stats?.totalSent ?? 0,
       icon: MessageSquare,
     },
-    {
-      label: "Reply Rate",
-      value: `${data?.stats?.replyRate ?? 0}%`,
-      icon: TrendingUp,
-    },
   ];
 
   if (loading) {
@@ -102,8 +97,8 @@ export default function Overview() {
           <Skeleton className="h-8 w-64" />
           <Skeleton className="h-4 w-96 mt-2" />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          {Array.from({ length: 5 }).map((_, i) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-28 rounded-xl" />
           ))}
         </div>
@@ -135,7 +130,7 @@ export default function Overview() {
       </div>
 
       {/* Stats Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s, i) => (
           <StatCard key={s.label} {...s} idx={i} />
         ))}

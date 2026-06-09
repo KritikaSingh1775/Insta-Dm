@@ -102,13 +102,6 @@ export default function Analytics() {
   const summary = data?.summary;
 
   const cards = [
-   
-    {
-      label: "Total Replies",
-      value: summary?.totalReplies ?? 0,
-      description: "Direct message replies received",
-      icon: MessageSquare,
-    },
     {
       label: "Most Successful Keyword",
       value: summary?.mostSuccessfulKeyword || "N/A",
@@ -167,7 +160,7 @@ export default function Analytics() {
 
 
       {/* Analytics Info Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((c, i) => (
           <AnalyticsCard key={c.label} {...c} idx={i} />
         ))}
